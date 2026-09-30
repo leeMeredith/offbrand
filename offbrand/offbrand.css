@@ -91,3 +91,11 @@
 .offbrand-unit-leaderboard .offbrand-leaderboard { width: 100%; }
 .offbrand-mark { font: 10px/1.2 Geneva, Arial, sans-serif; letter-spacing: .08em; text-transform: uppercase; color: rgb(120,120,120); margin: 0 0 3px; }
 .offbrand-mark-right { align-self: flex-end; }
+
+/* A dark ad on a dark page would lose its edge, so there it gets a grey one.
+   "Dark page" means the page says data-theme="dark", or the visitor's system
+   is dark and the page hasn't said data-theme="light". */
+[data-theme="dark"] .offbrand-darkbg { border-color: rgb(110,110,110); }
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme="light"]) .offbrand-darkbg { border-color: rgb(110,110,110); }
+}

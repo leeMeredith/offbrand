@@ -484,7 +484,7 @@ function adBody(c, size, href) {
 	var tag = href ? 'a href="' + href + '"' : "div";
 	// Words go on top only of real pictures; a drawn shape keeps them beside it.
 	var layout = c.source === "shape" ? "split" : c.layout;
-	var classes = "offbrand offbrand-" + size + " offbrand-" + layout + (c.flip ? " offbrand-flip" : "") + " offbrand-deco-" + c.deco + (c.ornament && c.ornament !== "none" ? " offbrand-has-orn" : "");
+	var classes = "offbrand offbrand-" + size + " offbrand-" + layout + (c.flip ? " offbrand-flip" : "") + " offbrand-deco-" + c.deco + (c.ornament && c.ornament !== "none" ? " offbrand-has-orn" : "") + (luminance(bg) < 0.3 ? " offbrand-darkbg" : "");
 	// Until a picture arrives, the shape sits on a tint of the background.
 	var tone = luminance(bg) > 0.5 ? "dark" : "light";
 	var ornaments = ornamentsHTML(c);

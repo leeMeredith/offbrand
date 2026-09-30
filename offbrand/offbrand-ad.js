@@ -20,7 +20,11 @@ function shell(host) {
 	var root = host.shadowRoot || host.attachShadow({ mode: "open" });
 	root.innerHTML =
 		'<link rel="stylesheet" href="' + STYLES + '">' +
-		'<style>:host { display: inline-block; max-width: 100%; } :host([size="leaderboard"]) { display: block; }</style>' +
+		'<style>:host { display: inline-block; max-width: 100%; } :host([size="leaderboard"]) { display: block; }' +
+			// The page's data-theme can't reach inside the tag, so check it here too.
+			' @media (prefers-color-scheme: dark) { .offbrand-darkbg { border-color: rgb(110,110,110); } }' +
+			' :host-context([data-theme="dark"]) .offbrand-darkbg { border-color: rgb(110,110,110); }' +
+			' :host-context([data-theme="light"]) .offbrand-darkbg { border-color: rgba(0,0,0,.15); }</style>' +
 		'<div part="ad"></div>';
 	return root.querySelector("div");
 }
