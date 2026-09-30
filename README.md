@@ -34,6 +34,6 @@ The ingredient lists you can replace are `palettes`, `headlines`, `lines`, `call
 
 ## Credits
 
-Museum pictures are public-domain works from the open-access APIs of the [Art Institute of Chicago](https://www.artic.edu/open-access/public-api), [The Metropolitan Museum of Art](https://metmuseum.github.io/), the [Cleveland Museum of Art](https://openaccess-api.clevelandart.org/) and [SMK](https://open.smk.dk/en), credited under each campaign. Each ad carries a small disclosure label just outside it ("Advertisement", "Sponsored" and so on), as real sites do. offbrand runs on [Lee Meredith's site](https://github.com/leeMeredith/personal-site) as *Weekly Campaign*.
+Museum pictures are public-domain works from the open-access APIs of the [Art Institute of Chicago](https://www.artic.edu/open-access/public-api), [The Metropolitan Museum of Art](https://metmuseum.github.io/), the [Cleveland Museum of Art](https://openaccess-api.clevelandart.org/) and [SMK](https://open.smk.dk/en), credited under each campaign. Each ad carries a small disclosure label just outside it ("Advertisement", "Sponsored" and so on), as real sites do. See it running on [Lee Meredith's site](https://leemeredith.github.io/?p=offbrand), where two campaigns (every 3 days and every 12 hours) also run as ads beside the work.
 
 MIT licence.
