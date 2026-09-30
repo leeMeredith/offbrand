@@ -6,6 +6,10 @@ Each ISO week seeds one campaign: an invented brand name from [Ortho](https://gi
 
 Pictures are a drawn, shaded product shape (bottle, jar, perfume flask, can, tube, box, sphere, cone, or pyramid) on a tint, horizon, or fade (sometimes with Ben-Day dots), or a public-domain work found by the browser in the Art Institute of Chicago, The Met, Cleveland Museum of Art, or SMK (National Gallery of Denmark) collections, with a credit. Fonts come from Google Fonts. No keys, accounts, or build step are needed.
 
+## See it working in a website
+
+**[leemeredith.github.io](https://leemeredith.github.io/)** runs offbrand as part of an artist's portfolio: two campaigns, one changing every 3 days and one every 12 hours, run as ads beside the work, in all three sizes, and the **[offbrand page](https://leemeredith.github.io/?p=offbrand)** shows a campaign with its picture credit and lets you browse other weeks.
+
 ## Try it
 
 Open `index.html` through a web server; browsers don't run modules from a double-clicked file. For example, run `python3 -m http.server 8000` in this folder and visit `http://127.0.0.1:8000/`. Turning on GitHub Pages for this repository serves the same demo publicly.
@@ -34,6 +38,6 @@ The ingredient lists you can replace are `palettes`, `headlines`, `lines`, `call
 
 ## Credits
 
-Museum pictures are public-domain works from the open-access APIs of the [Art Institute of Chicago](https://www.artic.edu/open-access/public-api), [The Metropolitan Museum of Art](https://metmuseum.github.io/), the [Cleveland Museum of Art](https://openaccess-api.clevelandart.org/) and [SMK](https://open.smk.dk/en), credited under each campaign. Each ad carries a small disclosure label just outside it ("Advertisement", "Sponsored" and so on), as real sites do. See it running on [Lee Meredith's site](https://leemeredith.github.io/?p=offbrand), where two campaigns (every 3 days and every 12 hours) also run as ads beside the work.
+Museum pictures are public-domain works from the open-access APIs of the [Art Institute of Chicago](https://www.artic.edu/open-access/public-api), [The Metropolitan Museum of Art](https://metmuseum.github.io/), the [Cleveland Museum of Art](https://openaccess-api.clevelandart.org/) and [SMK](https://open.smk.dk/en), credited under each campaign. Each ad carries a small disclosure label just outside it ("Advertisement", "Sponsored" and so on), as real sites do.
 
 MIT licence.
