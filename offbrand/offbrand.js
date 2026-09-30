@@ -53,7 +53,12 @@ var CALLS = ["Find yours", "Learn more", "Get it now", "See why", "Start today"]
 //   { src: "assets/img/ads/vase.jpg", credit: "The Met, CC0" }
 var IMAGES = [];
 var SOURCES = ["shape", "aic", "met", "aic", "met"];
-var SHAPES = ["bottle", "orb", "box", "tube"];
+var SHAPES = ["bottle", "orb", "box", "tube", "jar", "flask", "can", "cone", "pyramid"];
+// Behind a drawn shape: a plain tint, a horizon line, or a soft fade.
+var BACKDROPS = ["tint", "tint", "horizon", "horizon", "fade"];
+// Corner ornaments, drawn in the accent colour, and which corners get them.
+var ORNAMENTS = ["none", "none", "none", "vignette", "marginalia", "arabesque", "scrollwork", "acanthus", "english-scroll"];
+var PLACEMENTS = ["top", "bottom", "diagonal", "antidiagonal", "all"];
 var LAYOUTS = ["split", "split", "overlay"];
 var DECOS = ["none", "none", "frame", "double", "corners"];
 // 1 shows the whole picture (filling the space); higher values show a detail.
@@ -88,7 +93,10 @@ export var defaults = {
 	layouts: LAYOUTS,
 	decos: DECOS,
 	zooms: ZOOMS,
-	fonts: FONTS
+	fonts: FONTS,
+	backdrops: BACKDROPS,
+	ornaments: ORNAMENTS,
+	placements: PLACEMENTS
 };
 var settings = Object.assign({}, defaults);
 
@@ -139,7 +147,12 @@ export function campaign(year, week) {
 		deco: pick(o, settings.decos),         // decorative border or corners
 		// Crop: how far to zoom into the picture, and where (percent across and down).
 		crop: { zoom: pick(o, settings.zooms), x: 20 + o.rng.below(61), y: 20 + o.rng.below(61) },
-		fonts: pick(o, settings.fonts)         // headline typeface and small-text typeface
+		fonts: pick(o, settings.fonts),        // headline typeface and small-text typeface
+		backdrop: pick(o, settings.backdrops), // behind a drawn shape
+		horizon: 45 + o.rng.below(31),        // horizon height, percent from the top
+		sky: o.rng.below(2),                  // which of two sky colours
+		ornament: pick(o, settings.ornaments),
+		placement: pick(o, settings.placements)
 	};
 }
 
@@ -212,14 +225,115 @@ export function findPicture(c) {
 	}).catch(function () { return null; });
 }
 
+// Colour helpers for shading: mix two #rrggbb colours, t from 0 (a) to 1 (b).
+function mix(a, b, t) {
+	var x = parseInt(a.slice(1), 16), y = parseInt(b.slice(1), 16);
+	var c = [16, 8, 0].map(function (sh) {
+		var u = x >> sh & 255, v = y >> sh & 255;
+		return Math.round(u + (v - u) * t);
+	});
+	return "#" + ((1 << 24) + (c[0] << 16) + (c[1] << 8) + c[2]).toString(16).slice(1);
+}
+
+var uid = 0;
+
+// Product shapes with light from the upper left, so they read as objects.
 function shapeSVG(kind, accent, ink) {
+	var id = "ob" + (++uid);
+	var light = mix(accent, "#ffffff", 0.45), dark = mix(accent, "#000000", 0.35);
+	var defs = '<defs>' +
+		'<linearGradient id="' + id + 'h" x1="0" x2="1"><stop offset="0" stop-color="' + light + '"/><stop offset=".45" stop-color="' + accent + '"/><stop offset="1" stop-color="' + dark + '"/></linearGradient>' +
+		'<radialGradient id="' + id + 'r" cx=".35" cy=".32" r=".7"><stop offset="0" stop-color="' + light + '"/><stop offset=".6" stop-color="' + accent + '"/><stop offset="1" stop-color="' + dark + '"/></radialGradient>' +
+		'</defs>';
+	var H = 'url(#' + id + 'h)', R = 'url(#' + id + 'r)';
+	var cap = mix(ink, "#000000", 0.1), label = '#fff';
+	var shadow = '<ellipse cx="50" cy="93" rx="30" ry="4" fill="' + ink + '" opacity=".15"/>';
 	var body = {
-		bottle: '<rect x="38" y="10" width="24" height="16" rx="3" fill="' + ink + '"/><rect x="26" y="24" width="48" height="70" rx="12" fill="' + accent + '"/><rect x="34" y="48" width="32" height="18" rx="2" fill="#fff" opacity=".8"/>',
-		orb: '<circle cx="50" cy="52" r="38" fill="' + accent + '"/><ellipse cx="38" cy="38" rx="12" ry="8" fill="#fff" opacity=".45"/>',
-		box: '<path d="M18 34 50 18 82 34 82 76 50 92 18 76Z" fill="' + accent + '"/><path d="M18 34 50 50 82 34M50 50V92" stroke="' + ink + '" stroke-width="2" fill="none" opacity=".5"/>',
-		tube: '<rect x="30" y="8" width="40" height="72" rx="6" fill="' + accent + '"/><rect x="40" y="80" width="20" height="12" rx="2" fill="' + ink + '"/><rect x="36" y="22" width="28" height="30" rx="2" fill="#fff" opacity=".8"/>'
-	}[kind];
-	return '<svg viewBox="0 0 100 100" role="img" aria-label="Product">' + body + '</svg>';
+		bottle: '<path d="M42 8h16v10c0 4 12 8 12 18v50c0 4-3 6-6 6H36c-3 0-6-2-6-6V36c0-10 12-14 12-18Z" fill="' + H + '"/><rect x="41" y="4" width="18" height="9" rx="2" fill="' + cap + '"/><rect x="36" y="50" width="28" height="20" rx="2" fill="' + label + '" opacity=".85"/>',
+		orb: '<circle cx="50" cy="52" r="36" fill="' + R + '"/><ellipse cx="38" cy="36" rx="9" ry="6" fill="#fff" opacity=".5"/>',
+		box: '<path d="M18 34 50 20 82 34 50 48Z" fill="' + light + '"/><path d="M18 34 50 48V90L18 76Z" fill="' + accent + '"/><path d="M82 34 50 48V90L82 76Z" fill="' + dark + '"/>',
+		tube: '<path d="M32 10h36l-4 64H36Z" fill="' + H + '"/><rect x="40" y="74" width="20" height="16" rx="2" fill="' + cap + '"/><rect x="38" y="24" width="24" height="28" rx="2" fill="' + label + '" opacity=".85"/>',
+		jar: '<rect x="22" y="30" width="56" height="60" rx="10" fill="' + H + '"/><rect x="26" y="18" width="48" height="14" rx="4" fill="' + cap + '"/><rect x="30" y="48" width="40" height="22" rx="2" fill="' + label + '" opacity=".85"/>',
+		flask: '<circle cx="50" cy="12" r="7" fill="' + R + '"/><rect x="45" y="18" width="10" height="10" fill="' + cap + '"/><path d="M30 30h40l8 12v38c0 6-4 10-10 10H32c-6 0-10-4-10-10V42Z" fill="' + H + '"/><path d="M30 30h40l8 12H22Z" fill="#fff" opacity=".25"/>',
+		can: '<rect x="28" y="20" width="44" height="66" fill="' + H + '"/><ellipse cx="50" cy="86" rx="22" ry="5" fill="' + dark + '"/><ellipse cx="50" cy="20" rx="22" ry="5" fill="' + light + '"/><rect x="28" y="42" width="44" height="18" fill="' + label + '" opacity=".8"/>',
+		cone: '<path d="M50 10 80 86H20Z" fill="' + H + '"/><ellipse cx="50" cy="86" rx="30" ry="6" fill="' + dark + '"/>',
+		pyramid: '<path d="M50 12 22 82 50 90Z" fill="' + light + '"/><path d="M50 12 78 82 50 90Z" fill="' + dark + '"/>'
+	}[kind] || '';
+	return '<svg viewBox="0 0 100 100" role="img" aria-label="Product">' + defs + shadow + body + '</svg>';
+}
+
+// Behind a drawn shape: plain tint, a two-colour horizon, or a fade.
+function backdropCSS(c) {
+	var bg = c.palette[0], ink = c.palette[1], accent = c.palette[2];
+	var sky = c.sky ? mix(bg, accent, 0.25) : mix(bg, "#ffffff", 0.5);
+	var ground = mix(bg, ink, 0.3);
+	if (c.backdrop === "horizon") return "linear-gradient(to bottom," + sky + " 0 " + c.horizon + "%," + ground + " " + c.horizon + "% 100%)";
+	if (c.backdrop === "fade") return "linear-gradient(to bottom," + sky + "," + ground + ")";
+	return "";
+}
+
+// Corner ornaments. Each is drawn once for the top-left corner as one arm
+// along the top edge; the second arm is the same drawing flipped across the
+// diagonal, and CSS mirrors the whole piece into the other corners.
+// Paths use only commands whose numbers come in x,y pairs, so flipping is a swap.
+var ORNAMENT_ART = {
+	vignette: { w: 1.4, d: [
+		"M3 3C18 4 28 10 36 20S44 36 42 46",
+		"M20 6c6-2 10 2 8 6c-1 3-5 3-5 0" ], f: [
+		"M28 12q8-8 14-2q-8 6-14 2Z",
+		"M38 28q10-2 12 6q-10 2-12-6Z",
+		"M12 4q4-6 10-3q-4 5-10 3Z" ], dots: [[44, 18, 1.8], [47, 22, 1.4], [36, 42, 1.5]] },
+	marginalia: { w: 1.2, d: [
+		"M4 6q6-4 12 0t12 0t12 0t10 0",
+		"M50 6c4 0 6 4 3 6c-3 2-6-1-4-3",
+		"M14 12L14 20M10 16L18 16M11 13L17 19M17 13L11 19" ], f: [], dots: [[26, 14, 1.2], [32, 13, 0.9]] },
+	arabesque: { w: 1.6, d: [
+		"M3 3C14 3 16 14 26 14C36 14 36 4 46 6C54 8 54 18 48 20C44 21 42 17 45 15" ], f: [
+		"M26 14q2 8-4 12q-2-8 4-12Z",
+		"M46 6q6-6 12-2q-6 4-12 2Z" ], dots: [[36, 10, 1.3]] },
+	scrollwork: { w: 2.4, d: [
+		"M3 3C3 16 12 20 20 16C27 12 24 4 18 6C14 8 16 12 19 11",
+		"M20 16C30 22 34 30 32 38C30 44 24 43 25 38C26 35 29 36 28 39" ], f: [], dots: [] },
+	acanthus: { w: 1, d: [
+		"M5 5C14 10 22 18 30 30",
+		"M32 14c4-2 8 0 7 4c-1 3-5 2-4-1" ], f: [
+		"M3 3C16 2 26 6 32 14C30 12 26 12 24 15C28 15 31 18 32 22C28 20 24 21 22 24C27 25 30 29 30 34C22 28 12 22 6 12Z" ], dots: [] },
+	"english-scroll": { w: 0.9, d: [
+		"M3 3C10 5 14 3 18 6c3 2 1 6-2 5c-2-1-1-3 1-3",
+		"M18 6C24 9 28 6 32 9c3 2 1 6-2 5c-2-1-1-3 1-3",
+		"M32 9C38 12 42 9 46 12c3 2 1 6-2 5c-2-1-1-3 1-3",
+		"M10 5q2-4 5-3M25 8q2-4 5-3M39 11q2-4 5-3" ], f: [], dots: [[50, 14, 0.9]] }
+};
+
+function flipPath(d) {
+	var n = 0, prev = null;
+	return d.replace(/-?\d*\.?\d+/g, function (num) {
+		n++;
+		if (n % 2) { prev = num; return "\u0000"; }
+		return " " + num + " " + prev;
+	}).replace(/\u0000 ?/g, "");
+}
+
+function ornamentSVG(name, color) {
+	var art = ORNAMENT_ART[name];
+	if (!art) return "";
+	var out = "";
+	[false, true].forEach(function (flip) {
+		art.d.forEach(function (d) { out += '<path d="' + (flip ? flipPath(d) : d) + '" fill="none" stroke="' + color + '" stroke-width="' + art.w + '" stroke-linecap="round"/>'; });
+		art.f.forEach(function (d) { out += '<path d="' + (flip ? flipPath(d) : d) + '" fill="' + color + '" opacity=".85"/>'; });
+		art.dots.forEach(function (p) { out += '<circle cx="' + (flip ? p[1] : p[0]) + '" cy="' + (flip ? p[0] : p[1]) + '" r="' + p[2] + '" fill="' + color + '"/>'; });
+	});
+	return '<svg viewBox="0 0 64 64" aria-hidden="true">' + out + '</svg>';
+}
+
+var CORNERS = { top: ["tl", "tr"], bottom: ["bl", "br"], diagonal: ["tl", "br"], antidiagonal: ["tr", "bl"], all: ["tl", "tr", "bl", "br"] };
+
+function ornamentsHTML(c) {
+	if (!c.ornament || c.ornament === "none") return "";
+	var art = ornamentSVG(c.ornament, c.palette[2]);
+	return (CORNERS[c.placement] || CORNERS.all).map(function (k) {
+		return '<span class="offbrand-orn ' + k + '">' + art + '</span>';
+	}).join("");
 }
 
 function adHTML(c, size, href) {
@@ -228,16 +342,17 @@ function adHTML(c, size, href) {
 	var tag = href ? 'a href="' + href + '"' : "div";
 	// Words go on top only of real pictures; a drawn shape keeps them beside it.
 	var layout = c.source === "shape" ? "split" : c.layout;
-	var classes = "offbrand offbrand-" + size + " offbrand-" + layout + (c.flip ? " offbrand-flip" : "") + " offbrand-deco-" + c.deco;
+	var classes = "offbrand offbrand-" + size + " offbrand-" + layout + (c.flip ? " offbrand-flip" : "") + " offbrand-deco-" + c.deco + (c.ornament && c.ornament !== "none" ? " offbrand-has-orn" : "");
 	// Until a picture arrives, the shape sits on a tint of the background.
 	var tone = luminance(bg) > 0.5 ? "dark" : "light";
-	var corners = c.deco === "corners"
+	var ornaments = ornamentsHTML(c);
+	var corners = c.deco === "corners" && !ornaments
 		? '<span class="offbrand-corner tl"></span><span class="offbrand-corner tr"></span><span class="offbrand-corner bl"></span><span class="offbrand-corner br"></span>'
 		: "";
 	loadFonts(c.fonts);
 	var fonts = ";--ob-head-font:'" + c.fonts[0] + "'," + c.fonts[2] + ";--ob-body-font:'" + c.fonts[1] + "',sans-serif";
-	return '<' + tag + ' class="' + classes + '" data-tone="' + tone + '" style="--ob-bg:' + bg + ';--ob-ink:' + ink + ';--ob-accent:' + accent + fonts + '">' + corners +
-		'<div class="offbrand-pic">' + picture + '</div>' +
+	return '<' + tag + ' class="' + classes + '" data-tone="' + tone + '" style="--ob-bg:' + bg + ';--ob-ink:' + ink + ';--ob-accent:' + accent + fonts + '">' + corners + ornaments +
+		'<div class="offbrand-pic"' + (backdropCSS(c) ? ' style="background:' + backdropCSS(c) + '"' : '') + '>' + picture + '</div>' +
 		'<div class="offbrand-copy"><strong class="offbrand-brand">' + c.brand + '</strong>' +
 		'<span class="offbrand-head">' + c.headline + '</span>' +
 		'<span class="offbrand-line">' + c.line + '</span>' +

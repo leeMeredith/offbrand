@@ -2,9 +2,9 @@
 
 Generative advertising. Public-domain museum art and invented brands, recast as a new campaign every week, for a product that never appears.
 
-Each ISO week seeds one campaign: an invented brand name from [Ortho](https://github.com/leeMeredith/ortho), a palette, a font pairing, a picture, a crop, a layout, a decoration, and suggestive copy from curated lists. The campaign runs across three standard web ad sizes (728 × 90, 300 × 250, 160 × 600), so the set reads as one campaign.
+Each ISO week seeds one campaign: an invented brand name from [Ortho](https://github.com/leeMeredith/ortho), a palette, a font pairing, a picture, a crop, a layout, a decoration, corner ornaments (vignette, marginalia, arabesque, American scrollwork, acanthus, or English scroll, placed on the top, bottom, diagonal, or all corners), and suggestive copy from curated lists. The campaign runs across three standard web ad sizes (728 × 90, 300 × 250, 160 × 600), so the set reads as one campaign.
 
-Pictures are a drawn product shape, or a public-domain work found by the browser in the Art Institute of Chicago or The Met collections, with a credit. Fonts come from Google Fonts. No keys, accounts, or build step are needed.
+Pictures are a drawn, shaded product shape (bottle, jar, perfume flask, can, tube, box, sphere, cone, or pyramid) on a tint, horizon, or fade, or a public-domain work found by the browser in the Art Institute of Chicago or The Met collections, with a credit. Fonts come from Google Fonts. No keys, accounts, or build step are needed.
 
 ## Try it
 
@@ -29,7 +29,7 @@ mount(element);                                  // this week's full set, with b
 configure({ headlines: ["You already know."] }); // replace any ingredient list
 ```
 
-The ingredient lists you can replace are `palettes`, `headlines`, `lines`, `calls`, `images`, `sources`, `shapes`, `subjects`, `layouts`, `decos`, `zooms` and `fonts`. The defaults and what each one means are at the top of `offbrand/offbrand.js`.
+The ingredient lists you can replace are `palettes`, `headlines`, `lines`, `calls`, `images`, `sources`, `shapes`, `backdrops`, `subjects`, `layouts`, `decos`, `ornaments`, `placements`, `zooms` and `fonts`. The defaults and what each one means are at the top of `offbrand/offbrand.js`.
 
 ## Credits
 
