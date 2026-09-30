@@ -18,8 +18,12 @@ var PALETTES = [
 	["#1f1a17", "#efe6da", "#d4a373"]
 ];
 
-// Headlines: {B} is the brand. Suggestive, never saying what is for sale.
+// Copy lists: the forms of classic advertising (the promise, the new and
+// improved, the testimonial, the fine print, the limited-time offer) written
+// fresh, never quoting a real slogan, and never saying what is for sale.
+// {B} is the brand.
 var HEADLINES = [
+	// the original set
 	"You already know.",
 	"Finally, {B}.",
 	"Ask for it by name.",
@@ -29,9 +33,47 @@ var HEADLINES = [
 	"Everyone's talking. Quietly.",
 	"You deserve the good one.",
 	"It changes everything. Slightly.",
-	"Once you know, you know."
+	"Once you know, you know.",
+	// the promise
+	"It works. Don't ask how.",
+	"The one you've been waiting for.",
+	"Everything you need. Nothing you'd recognize.",
+	"It's here. It's always been here.",
+	"Reach for the {B}.",
+	"There's a {B} for that feeling.",
+	"Life, but with {B}.",
+	"Go on. It's {B}.",
+	// new and improved
+	"New. Improved. Still {B}.",
+	"Now with more of it.",
+	"The same great {B}. Different reasons.",
+	"Reformulated for the way you live now.",
+	"Now in a size you can hold.",
+	// the testimonial
+	"Four out of five agree. The fifth is thinking about it.",
+	"Trusted by people who trust things.",
+	"My mother used it. Her mother wondered.",
+	"Recommended by someone, somewhere.",
+	"Experts can't explain it either.",
+	"I tried it. Now I can't stop not knowing.",
+	// the challenge
+	"Accept no substitutes. There aren't any.",
+	"Try the rest. Then try {B}.",
+	"If it's not {B}, it's something else.",
+	"Nothing else is quite this.",
+	"The leading brand of whatever this is.",
+	// the mood
+	"Because some days need it.",
+	"For the moment before the moment.",
+	"Where were you when you first had {B}?",
+	"Feel the difference. Name it later.",
+	"Made with care. Mostly.",
+	"Tomorrow starts with {B}.",
+	"Small. Serious. {B}.",
+	"It's not a phase. It's {B}."
 ];
 var LINES = [
+	// the original set
 	"Available wherever you are.",
 	"Now in a new shape.",
 	"Limited time. Unlimited you.",
@@ -39,9 +81,35 @@ var LINES = [
 	"Results may vary. Yours won't.",
 	"The one they don't advertise.",
 	"Better than yesterday's.",
-	"As seen in your dreams."
+	"As seen in your dreams.",
+	// the offer
+	"Limited time only. Time not included.",
+	"While supplies last. They won't.",
+	"Buy one, get the feeling free.",
+	"Now at participating locations near you.",
+	"Offer valid everywhere it matters.",
+	"No purchase necessary. Wanting is enough.",
+	// the fine print
+	"Results not typical. Nothing is.",
+	"Ask someone if it's right for you.",
+	"Some assembly required. Some understanding too.",
+	"Not available in stores. Or anywhere, exactly.",
+	"Side effects may include wanting more.",
+	"Contents may settle. So may you.",
+	"Keep out of reach of doubt.",
+	"Individual experiences may differ from this one.",
+	// the claim
+	"Clinically imagined.",
+	"Twice as much as before. Before what, we can't say.",
+	"Satisfaction, more or less guaranteed.",
+	"Made the old-fashioned way, whatever that was.",
+	"Proudly unexplained since this morning.",
+	"With twelve essential somethings.",
+	"Now with a hint of certainty.",
+	"You'll know it when you don't see it."
 ];
-var CALLS = ["Find yours", "Learn more", "Get it now", "See why", "Start today"];
+var CALLS = ["Find yours", "Learn more", "Get it now", "See why", "Start today", "Shop the feeling", "Claim yours",
+	"Discover more", "Try it free", "Order now", "Reserve yours", "See for yourself", "Act now", "Be first", "Join them"];
 
 // Pictures come from one of these each week, so campaigns stay
 // consistently inconsistent:
@@ -490,12 +558,47 @@ function applyPicture(root, pic, flip, crop) {
 	load(true);
 }
 
+// Make each ad's words fit its box: shrink the headline a step at a time,
+// and only if that is not enough, drop the small print line. Runs again once
+// the campaign's fonts have loaded, since they change how wide words are.
+function fits(ad) {
+	var box = ad.getBoundingClientRect();
+	var copy = ad.querySelector(".offbrand-copy");
+	return Array.prototype.every.call(copy.children, function (c) {
+		if (c.offsetParent === null) return true;   // hidden
+		var r = c.getBoundingClientRect();
+		return r.bottom <= box.bottom + 1 && r.right <= box.right + 1 && r.top >= box.top - 1;
+	});
+}
+
+function fitText(root) {
+	root.querySelectorAll(".offbrand").forEach(function (ad) {
+		var head = ad.querySelector(".offbrand-head");
+		var line = ad.querySelector(".offbrand-line");
+		head.style.fontSize = "";
+		line.style.display = "";
+		var size = parseFloat(getComputedStyle(head).fontSize);
+		var floor = size * 0.6;
+		while (!fits(ad) && size > floor) {
+			size -= 1;
+			head.style.fontSize = size + "px";
+		}
+		if (!fits(ad)) line.style.display = "none";
+	});
+}
+
+function fitSoon(root) {
+	fitText(root);
+	if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { fitText(root); });
+}
+
 // A single ad on one of the site's own pages, e.g. placeAd(el, "rectangle").
 // Pass every = "3d" or "12h" for a campaign that changes faster than weekly.
 // It shows this week's campaign; pass href to make it a link.
 export function placeAd(el, size, href, every) {
 	var c = current(every);
 	el.innerHTML = adHTML(c, size, href);
+	fitSoon(el);
 	findPicture(c).then(function (pic) { applyPicture(el, pic, c.flip, c.crop); });
 }
 
@@ -516,6 +619,7 @@ export function mount(el) {
 		current = c;
 		el.querySelector(".offbrand-week").textContent = c.brand + " — week " + c.week + ", " + c.year;
 		set.innerHTML = adHTML(c, "leaderboard") + adHTML(c, "rectangle") + adHTML(c, "skyscraper");
+		fitSoon(set);
 		var credit = el.querySelector(".offbrand-credit");
 		credit.textContent = "";
 		findPicture(c).then(function (pic) {
