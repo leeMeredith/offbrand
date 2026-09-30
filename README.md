@@ -25,6 +25,7 @@ To use offbrand on your own site, copy the `offbrand/` and `ortho/` folders side
 import { placeAd, mount, configure } from "./offbrand/offbrand.js";
 
 placeAd(element, "rectangle", "campaign.html"); // one ad; also "leaderboard" or "skyscraper"
+placeAd(element, "skyscraper", "campaign.html", "12h"); // a campaign that changes every 12 hours ("3d" for 3 days)
 mount(element);                                  // this week's full set, with buttons
 configure({ headlines: ["You already know."] }); // replace any ingredient list
 ```

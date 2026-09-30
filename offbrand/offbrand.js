@@ -132,7 +132,23 @@ function isoWeek(d) {
 function pick(o, list) { return list[o.rng.below(list.length)]; }
 
 export function campaign(year, week) {
-	var o = new Ortho(year * 100 + week);
+	return build(year * 100 + week, year, week);
+}
+
+// Campaigns can also run on a shorter cycle than a week. Each cycle has its
+// own seed range, so a 3-day and a 12-hour campaign never share a brand.
+var CYCLES = { "3d": { ms: 3 * 86400000, base: 7000000 }, "12h": { ms: 12 * 3600000, base: 8000000 } };
+
+// The campaign running now: every "week" (default), "3d", or "12h".
+export function current(every) {
+	var cycle = CYCLES[every];
+	if (!cycle) return thisWeek();
+	var n = Math.floor(Date.now() / cycle.ms);
+	return build(cycle.base + n, every, n);
+}
+
+function build(seed, year, week) {
+	var o = new Ortho(seed);
 	var brand = o.word(5 + o.rng.below(3), { contractions: false });
 	brand = brand.charAt(0).toUpperCase() + brand.slice(1);
 	return {
@@ -461,9 +477,10 @@ function applyPicture(root, pic, flip, crop) {
 }
 
 // A single ad on one of the site's own pages, e.g. placeAd(el, "rectangle").
+// Pass every = "3d" or "12h" for a campaign that changes faster than weekly.
 // It shows this week's campaign; pass href to make it a link.
-export function placeAd(el, size, href) {
-	var c = thisWeek();
+export function placeAd(el, size, href, every) {
+	var c = current(every);
 	el.innerHTML = adHTML(c, size, href);
 	findPicture(c).then(function (pic) { applyPicture(el, pic, c.flip, c.crop); });
 }
