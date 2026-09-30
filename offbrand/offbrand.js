@@ -48,17 +48,21 @@ var CALLS = ["Find yours", "Learn more", "Get it now", "See why", "Start today"]
 //   "shape"  a drawn product shape in the campaign colours
 //   "aic"    a public-domain work from the Art Institute of Chicago
 //   "met"    a public-domain work from The Met's Open Access collection
+//   "cma"    a public-domain work from the Cleveland Museum of Art
+//   "smk"    a public-domain work from SMK, the National Gallery of Denmark
 //   "local"  one of your own images below, if any
 // Local images: web-sized copies you host yourself, each with a credit, e.g.
 //   { src: "assets/img/ads/vase.jpg", credit: "The Met, CC0" }
 var IMAGES = [];
-var SOURCES = ["shape", "aic", "met", "aic", "met"];
+var SOURCES = ["shape", "shape", "aic", "met", "cma", "smk", "aic", "met", "cma", "smk"];
 var SHAPES = ["bottle", "orb", "box", "tube", "jar", "flask", "can", "cone", "pyramid"];
 // Behind a drawn shape: a plain tint, a horizon line, or a soft fade.
 var BACKDROPS = ["tint", "tint", "horizon", "horizon", "fade"];
 // Corner ornaments, drawn in the accent colour, and which corners get them.
 var ORNAMENTS = ["none", "none", "none", "vignette", "marginalia", "arabesque", "scrollwork", "acanthus", "english-scroll"];
 var PLACEMENTS = ["top", "bottom", "diagonal", "antidiagonal", "all"];
+// The disclosure label shown just outside each ad, as real sites do.
+var LABELS = ["Advertisement", "Advertisement", "Sponsored", "Ad", "Promoted", "Paid content"];
 var LAYOUTS = ["split", "split", "overlay"];
 var DECOS = ["none", "none", "frame", "double", "corners"];
 // 1 shows the whole picture (filling the space); higher values show a detail.
@@ -96,7 +100,8 @@ export var defaults = {
 	fonts: FONTS,
 	backdrops: BACKDROPS,
 	ornaments: ORNAMENTS,
-	placements: PLACEMENTS
+	placements: PLACEMENTS,
+	labels: LABELS
 };
 var settings = Object.assign({}, defaults);
 
@@ -152,7 +157,9 @@ export function campaign(year, week) {
 		horizon: 45 + o.rng.below(31),        // horizon height, percent from the top
 		sky: o.rng.below(2),                  // which of two sky colours
 		ornament: pick(o, settings.ornaments),
-		placement: pick(o, settings.placements)
+		placement: pick(o, settings.placements),
+		label: pick(o, settings.labels),      // the small disclosure line above each ad
+		labelSide: o.rng.below(2) ? "right" : "left"
 	};
 }
 
@@ -210,6 +217,39 @@ function fromMet(c) {
 	});
 }
 
+function fromCMA(c) {
+	var url = "https://openaccess-api.clevelandart.org/api/artworks/?q=" + encodeURIComponent(c.subject) +
+		"&cc0=1&has_image=1&limit=30";
+	return getJSON(url).then(function (res) {
+		var works = (res.data || []).filter(function (w) { return w.images && w.images.web; });
+		if (!works.length) return null;
+		var w = works[c.pickIndex % works.length];
+		var who = w.creators && w.creators[0] ? w.creators[0].description : "";
+		return {
+			src: w.images.web.url,
+			credit: w.title + (who ? ", " + who : "") + ". Cleveland Museum of Art, CC0",
+			href: w.url
+		};
+	});
+}
+
+function fromSMK(c) {
+	var url = "https://api.smk.dk/api/v1/art/search/?keys=" + encodeURIComponent(c.subject) +
+		"&filters=%5Bhas_image:true%5D,%5Bpublic_domain:true%5D&offset=0&rows=30&lang=en";
+	return getJSON(url).then(function (res) {
+		var works = (res.items || []).filter(function (w) { return w.image_thumbnail; });
+		if (!works.length) return null;
+		var w = works[c.pickIndex % works.length];
+		var title = w.titles && w.titles[0] ? w.titles[0].title : "Untitled";
+		var who = w.production && w.production[0] ? w.production[0].creator : "";
+		return {
+			src: w.image_thumbnail,
+			credit: title + (who ? ", " + who : "") + ". SMK, National Gallery of Denmark, public domain",
+			href: w.frontend_url || ("https://open.smk.dk/artwork/image/" + w.object_number)
+		};
+	});
+}
+
 export function findPicture(c) {
 	if (c.source === "shape") return Promise.resolve(null);
 	if (c.source === "local") return Promise.resolve(c.local);
@@ -218,7 +258,7 @@ export function findPicture(c) {
 		var saved = localStorage.getItem(key);
 		if (saved) return Promise.resolve(JSON.parse(saved));
 	} catch (e) {}
-	var find = c.source === "aic" ? fromAIC : fromMet;
+	var find = { aic: fromAIC, met: fromMet, cma: fromCMA, smk: fromSMK }[c.source] || fromAIC;
 	return find(c).then(function (pic) {
 		try { localStorage.setItem(key, JSON.stringify(pic)); } catch (e) {}
 		return pic;
@@ -337,6 +377,10 @@ function ornamentsHTML(c) {
 }
 
 function adHTML(c, size, href) {
+	return '<div class="offbrand-unit offbrand-unit-' + size + '"><span class="offbrand-mark offbrand-mark-' + (c.labelSide || "left") + '">' + (c.label || "Advertisement") + '</span>' + adBody(c, size, href) + '</div>';
+}
+
+function adBody(c, size, href) {
 	var bg = c.palette[0], ink = c.palette[1], accent = c.palette[2];
 	var picture = shapeSVG(c.shape, accent, ink);
 	var tag = href ? 'a href="' + href + '"' : "div";
@@ -357,7 +401,7 @@ function adHTML(c, size, href) {
 		'<span class="offbrand-head">' + c.headline + '</span>' +
 		'<span class="offbrand-line">' + c.line + '</span>' +
 		'<span class="offbrand-call">' + c.call + ' ›</span></div>' +
-		'<span class="offbrand-mark">Ad</span></' + (href ? "a" : "div") + '>';
+		'</' + (href ? "a" : "div") + '>';
 }
 
 function luminance(hex) {

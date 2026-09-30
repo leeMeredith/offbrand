@@ -4,7 +4,7 @@ Generative advertising. Public-domain museum art and invented brands, recast as 
 
 Each ISO week seeds one campaign: an invented brand name from [Ortho](https://github.com/leeMeredith/ortho), a palette, a font pairing, a picture, a crop, a layout, a decoration, corner ornaments (vignette, marginalia, arabesque, American scrollwork, acanthus, or English scroll, placed on the top, bottom, diagonal, or all corners), and suggestive copy from curated lists. The campaign runs across three standard web ad sizes (728 × 90, 300 × 250, 160 × 600), so the set reads as one campaign.
 
-Pictures are a drawn, shaded product shape (bottle, jar, perfume flask, can, tube, box, sphere, cone, or pyramid) on a tint, horizon, or fade, or a public-domain work found by the browser in the Art Institute of Chicago or The Met collections, with a credit. Fonts come from Google Fonts. No keys, accounts, or build step are needed.
+Pictures are a drawn, shaded product shape (bottle, jar, perfume flask, can, tube, box, sphere, cone, or pyramid) on a tint, horizon, or fade, or a public-domain work found by the browser in the Art Institute of Chicago, The Met, Cleveland Museum of Art, or SMK (National Gallery of Denmark) collections, with a credit. Fonts come from Google Fonts. No keys, accounts, or build step are needed.
 
 ## Try it
 
@@ -29,10 +29,10 @@ mount(element);                                  // this week's full set, with b
 configure({ headlines: ["You already know."] }); // replace any ingredient list
 ```
 
-The ingredient lists you can replace are `palettes`, `headlines`, `lines`, `calls`, `images`, `sources`, `shapes`, `backdrops`, `subjects`, `layouts`, `decos`, `ornaments`, `placements`, `zooms` and `fonts`. The defaults and what each one means are at the top of `offbrand/offbrand.js`.
+The ingredient lists you can replace are `palettes`, `headlines`, `lines`, `calls`, `images`, `sources`, `shapes`, `backdrops`, `subjects`, `layouts`, `decos`, `ornaments`, `placements`, `labels`, `zooms` and `fonts`. The defaults and what each one means are at the top of `offbrand/offbrand.js`.
 
 ## Credits
 
-Museum pictures are public-domain (CC0) works from the [Art Institute of Chicago](https://www.artic.edu/open-access/public-api) and [The Metropolitan Museum of Art](https://metmuseum.github.io/) open-access APIs, credited under each campaign. offbrand runs on [Lee Meredith's site](https://github.com/leeMeredith/personal-site) as *Weekly Campaign*.
+Museum pictures are public-domain works from the open-access APIs of the [Art Institute of Chicago](https://www.artic.edu/open-access/public-api), [The Metropolitan Museum of Art](https://metmuseum.github.io/), the [Cleveland Museum of Art](https://openaccess-api.clevelandart.org/) and [SMK](https://open.smk.dk/en), credited under each campaign. Each ad carries a small disclosure label just outside it ("Advertisement", "Sponsored" and so on), as real sites do. offbrand runs on [Lee Meredith's site](https://github.com/leeMeredith/personal-site) as *Weekly Campaign*.
 
 MIT licence.
