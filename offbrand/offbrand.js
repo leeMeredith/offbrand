@@ -63,6 +63,8 @@ var ORNAMENTS = ["none", "none", "none", "vignette", "marginalia", "arabesque", 
 var PLACEMENTS = ["top", "bottom", "diagonal", "antidiagonal", "all"];
 // The disclosure label shown just outside each ad, as real sites do.
 var LABELS = ["Advertisement", "Advertisement", "Sponsored", "Ad", "Promoted", "Paid content"];
+// Ben-Day dot sizes (pixels between dots) for drawn-shape campaigns.
+var DOT_SIZES = [6, 8, 10, 14];
 var LAYOUTS = ["split", "split", "overlay"];
 var DECOS = ["none", "none", "frame", "double", "corners"];
 // 1 shows the whole picture (filling the space); higher values show a detail.
@@ -101,7 +103,8 @@ export var defaults = {
 	backdrops: BACKDROPS,
 	ornaments: ORNAMENTS,
 	placements: PLACEMENTS,
-	labels: LABELS
+	labels: LABELS,
+	dotSizes: DOT_SIZES
 };
 var settings = Object.assign({}, defaults);
 
@@ -175,7 +178,10 @@ function build(seed, year, week) {
 		ornament: pick(o, settings.ornaments),
 		placement: pick(o, settings.placements),
 		label: pick(o, settings.labels),      // the small disclosure line above each ad
-		labelSide: o.rng.below(2) ? "right" : "left"
+		labelSide: o.rng.below(2) ? "right" : "left",
+		// Ben-Day dots behind a drawn shape, about one shape week in three:
+		// a dot size in pixels, or 0 for none. Never used behind museum pictures.
+		dots: o.rng.below(3) === 0 ? pick(o, settings.dotSizes) : 0
 	};
 }
 
@@ -323,9 +329,17 @@ function backdropCSS(c) {
 	var bg = c.palette[0], ink = c.palette[1], accent = c.palette[2];
 	var sky = c.sky ? mix(bg, accent, 0.25) : mix(bg, "#ffffff", 0.5);
 	var ground = mix(bg, ink, 0.3);
-	if (c.backdrop === "horizon") return "linear-gradient(to bottom," + sky + " 0 " + c.horizon + "%," + ground + " " + c.horizon + "% 100%)";
-	if (c.backdrop === "fade") return "linear-gradient(to bottom," + sky + "," + ground + ")";
-	return "";
+	var base = "";
+	if (c.backdrop === "horizon") base = "linear-gradient(to bottom," + sky + " 0 " + c.horizon + "%," + ground + " " + c.horizon + "% 100%)";
+	else if (c.backdrop === "fade") base = "linear-gradient(to bottom," + sky + "," + ground + ")";
+	if (!(c.dots && c.source === "shape")) return base;
+	// Ben-Day dots: two offset grids of round dots, as in comic printing,
+	// laid over the tint, horizon, or fade.
+	var n = c.dots, h = n / 2, dot = mix(bg, accent, 0.55);
+	var layer = "radial-gradient(circle," + dot + " 26%,transparent 29%)";
+	return layer + " 0 0/" + n + "px " + n + "px," +
+		layer + " " + h + "px " + h + "px/" + n + "px " + n + "px," +
+		(base || mix(accent, bg, 0.82));
 }
 
 // Corner ornaments. Each is drawn once for the top-left corner as one arm
