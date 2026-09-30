@@ -1,4 +1,5 @@
-// offbrand: a pretend ad agency that launches a new campaign every week.
+// offbrand: generative advertising. Public-domain museum art and invented
+// brands, recast as a new campaign every week, for a product that never appears.
 // One brand, one palette, one picture, and one line of copy run across three
 // standard web ad sizes, so the set looks like a real campaign. The brand name
 // is an Ortho word, and the copy hints at a product without ever naming it.

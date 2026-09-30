@@ -1,6 +1,6 @@
 # offbrand
 
-A pretend ad agency: a new campaign every week, for a product it never names.
+Generative advertising. Public-domain museum art and invented brands, recast as a new campaign every week, for a product that never appears.
 
 Each ISO week seeds one campaign: an invented brand name from [Ortho](https://github.com/leeMeredith/ortho), a palette, a font pairing, a picture, a crop, a layout, a decoration, and suggestive copy from curated lists. The campaign runs across three standard web ad sizes (728 × 90, 300 × 250, 160 × 600), so the set reads as one campaign.
 
