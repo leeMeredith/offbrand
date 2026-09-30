@@ -5,7 +5,6 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>offbrand</title>
 	<meta name="description" content="Generative advertising. Public-domain museum art and invented brands, recast as a new campaign every week, for a product that never appears.">
-	<link rel="stylesheet" href="offbrand/offbrand.css">
 	<style>
 		body { margin: 0; padding: 24px 16px; background: #ebebeb; color: #222; font: 16px/1.5 Geneva, Arial, sans-serif; }
 		main { max-width: 1100px; margin: 0 auto; }
@@ -13,17 +12,23 @@
 		.intro { max-width: 42em; color: #555; margin: 0 0 16px; }
 		a { color: #333; }
 		code { background: #ddd; padding: 1px 4px; border-radius: 2px; }
+		pre { background: #ddd; padding: 10px 12px; overflow-x: auto; max-width: 42em; }
+		pre code { padding: 0; }
+		h2 { font-size: 20px; font-weight: normal; margin: 32px 0 4px; }
 	</style>
 </head>
 <body>
 <main>
 	<h1>offbrand</h1>
 	<p class="intro">Generative advertising. Public-domain museum art and invented brands, recast as a new campaign every week, for a product that never appears. <a href="https://github.com/leeMeredith/offbrand">Source on GitHub</a> · <a href="https://leemeredith.github.io/">See it working in a website</a>.</p>
-	<div id="campaign"></div>
+	<offbrand-campaign></offbrand-campaign>
+
+	<h2>On your own page</h2>
+	<p class="intro">One tag per ad. This one changes every 12 hours:</p>
+	<pre><code>&lt;script type="module" src="offbrand/offbrand-ad.js"&gt;&lt;/script&gt;
+&lt;offbrand-ad size="rectangle" every="12h"&gt;&lt;/offbrand-ad&gt;</code></pre>
+	<offbrand-ad size="rectangle" every="12h"></offbrand-ad>
 </main>
-<script type="module">
-	import { mount } from "./offbrand/offbrand.js";
-	mount(document.getElementById("campaign"));
-</script>
+<script type="module" src="offbrand/offbrand-ad.js"></script>
 </body>
 </html>

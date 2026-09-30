@@ -17,13 +17,31 @@ Open `index.html` through a web server; browsers don't run modules from a double
 ## Files
 
 - `offbrand/offbrand.js`: the generator, as an ES module with no build step.
+- `offbrand/offbrand-ad.js`: the `<offbrand-ad>` and `<offbrand-campaign>` web components.
 - `offbrand/offbrand.css`: the ad styles. Class names start with `offbrand-`, and colours and fonts are `--ob-*` variables, so they won't clash with the page around them.
 - `ortho/`: a copy of [Ortho](https://github.com/leeMeredith/ortho), which invents the brand names. Keep it next to the `offbrand/` folder.
 - `index.html`: the demo.
 
 To use offbrand on your own site, copy the `offbrand/` and `ortho/` folders side by side and load `offbrand/offbrand.css`.
 
-## Use
+## Use as a tag
+
+Copy the `offbrand/` and `ortho/` folders side by side, then:
+
+```html
+<script type="module" src="offbrand/offbrand-ad.js"></script>
+
+<offbrand-ad size="rectangle" every="3d" href="about.html"></offbrand-ad>
+<offbrand-campaign></offbrand-campaign>
+```
+
+- `size`: `leaderboard` (728 x 90), `rectangle` (300 x 250, the default) or `skyscraper` (160 x 600).
+- `every`: `week` (the default), `3d` or `12h`, how often the campaign changes.
+- `href`: optional; makes the ad a link.
+
+`<offbrand-campaign>` shows this week's campaign in all three sizes with buttons to browse other weeks. Each tag keeps its styles in its own shadow root, so your page's CSS can't break it. Changing an attribute redraws the ad.
+
+## Use from JavaScript
 
 ```js
 import { placeAd, mount, configure } from "./offbrand/offbrand.js";
